@@ -1,26 +1,21 @@
-"use client";
-
+import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
 import { SignInPage } from "@/components/ui/sign-in";
 
-export default function Home() {
-  const handleSignIn = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const data = Object.fromEntries(formData.entries());
-    console.log("Sign In submitted:", data);
-  };
+export default async function Home() {
+  const supabase = await createClient();
 
-  const handleGoogleSignIn = () => {
-    console.log("Continue with Google clicked");
-  };
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    redirect("/dashboard");
+  }
 
   return (
-    <div className="bg-background text-foreground">
-      <SignInPage
-        heroImageSrc="/hero-bg.png"
-        onSignIn={handleSignIn}
-        onGoogleSignIn={handleGoogleSignIn}
-      />
-    </div>
+    <SignInPage
+      heroImageSrc="/hero-bg.png"
+    />
   );
 }

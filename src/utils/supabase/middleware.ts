@@ -29,22 +29,19 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // Do not run code between createServerClient and
-  // supabase.auth.getUser(). A simple mistake could make it very hard to debug
-  // issues with users being randomly logged out.
-
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith("/") &&
-    !request.nextUrl.pathname.startsWith("/create-account") &&
-    !request.nextUrl.pathname.startsWith("/reset-password") &&
-    !request.nextUrl.pathname.startsWith("/auth")
-  ) {
-    // no user, redirect to login page
+  // Public routes that don't require authentication
+  const publicRoutes = ["/", "/create-account", "/reset-password", "/auth"];
+  const isPublicRoute = publicRoutes.some(
+    (route) =>
+      request.nextUrl.pathname === route ||
+      request.nextUrl.pathname.startsWith(route + "/")
+  );
+
+  if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);

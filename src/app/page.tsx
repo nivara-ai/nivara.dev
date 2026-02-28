@@ -17,7 +17,7 @@ export default function Home() {
   return (
     <div className="bg-background text-foreground">
       <SignInPage
-        heroImageSrc="https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=2160&q=80"
+        heroImageSrc="/hero-bg.png"
         onSignIn={handleSignIn}
         onGoogleSignIn={handleGoogleSignIn}
       />

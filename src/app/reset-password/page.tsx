@@ -13,7 +13,7 @@ export default function ResetPassword() {
   return (
     <div className="bg-background text-foreground">
       <ResetPasswordPage
-        heroImageSrc="https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=2160&q=80"
+        heroImageSrc="/hero-bg.png"
         onResetPassword={handleResetPassword}
       />
     </div>

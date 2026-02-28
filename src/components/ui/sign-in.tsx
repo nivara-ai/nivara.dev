@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
-import Link from 'next/link';
+"use client";
+
+import React, { useState, useTransition } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import Link from "next/link";
+import { login, signInWithGoogle } from "@/app/auth/actions";
 
 // --- HELPER COMPONENTS (ICONS) ---
 
@@ -13,15 +16,12 @@ const GoogleIcon = () => (
   </svg>
 );
 
-
 // --- TYPE DEFINITIONS ---
 
 interface SignInPageProps {
   title?: React.ReactNode;
   description?: React.ReactNode;
   heroImageSrc?: string;
-  onSignIn?: (event: React.FormEvent<HTMLFormElement>) => void;
-  onGoogleSignIn?: () => void;
 }
 
 // --- SUB-COMPONENTS ---
@@ -38,10 +38,28 @@ export const SignInPage: React.FC<SignInPageProps> = ({
   title = <span className="font-light text-foreground tracking-tighter">Welcome</span>,
   description = "Access your account and continue your journey with us",
   heroImageSrc,
-  onSignIn,
-  onGoogleSignIn,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  const handleSignIn = async (formData: FormData) => {
+    startTransition(async () => {
+      const result = await login(formData);
+      if (result?.error) {
+        setError(result.error);
+      }
+    });
+  };
+
+  const handleGoogleSignIn = () => {
+    startTransition(async () => {
+      const result = await signInWithGoogle();
+      if (result?.error) {
+        setError(result.error);
+      }
+    });
+  };
 
   return (
     <div className="h-[100dvh] flex flex-col md:flex-row font-geist w-[100dvw]">
@@ -52,11 +70,17 @@ export const SignInPage: React.FC<SignInPageProps> = ({
             <h1 className="animate-element animate-delay-100 text-4xl md:text-5xl font-semibold leading-tight">{title}</h1>
             <p className="animate-element animate-delay-200 text-muted-foreground">{description}</p>
 
-            <form className="space-y-5" onSubmit={onSignIn}>
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-xl p-3">
+                {error}
+              </div>
+            )}
+
+            <form className="space-y-5" action={handleSignIn}>
               <div className="animate-element animate-delay-300">
                 <label className="text-sm font-medium text-muted-foreground">Email Address</label>
                 <GlassInputWrapper>
-                  <input name="email" type="email" placeholder="Enter your email address" className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none" />
+                  <input name="email" type="email" placeholder="Enter your email address" required className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none" />
                 </GlassInputWrapper>
               </div>
 
@@ -64,7 +88,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                 <label className="text-sm font-medium text-muted-foreground">Password</label>
                 <GlassInputWrapper>
                   <div className="relative">
-                    <input name="password" type={showPassword ? 'text' : 'password'} placeholder="Enter your password" className="w-full bg-transparent text-sm p-4 pr-12 rounded-2xl focus:outline-none" />
+                    <input name="password" type={showPassword ? "text" : "password"} placeholder="Enter your password" required className="w-full bg-transparent text-sm p-4 pr-12 rounded-2xl focus:outline-none" />
                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-3 flex items-center">
                       {showPassword ? <EyeOff className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" /> : <Eye className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />}
                     </button>
@@ -80,8 +104,8 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                 <Link href="/reset-password" className="hover:underline text-emerald-400 transition-colors">Reset password</Link>
               </div>
 
-              <button type="submit" className="animate-element animate-delay-600 w-full rounded-2xl bg-primary py-4 font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
-                Sign In
+              <button type="submit" disabled={isPending} className="animate-element animate-delay-600 w-full rounded-2xl bg-primary py-4 font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50">
+                {isPending ? "Signing in..." : "Sign In"}
               </button>
             </form>
 
@@ -90,7 +114,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({
               <span className="px-4 text-sm text-muted-foreground bg-background absolute">Or continue with</span>
             </div>
 
-            <button onClick={onGoogleSignIn} className="animate-element animate-delay-800 w-full flex items-center justify-center gap-3 border border-border rounded-2xl py-4 hover:bg-secondary transition-colors">
+            <button onClick={handleGoogleSignIn} disabled={isPending} className="animate-element animate-delay-800 w-full flex items-center justify-center gap-3 border border-border rounded-2xl py-4 hover:bg-secondary transition-colors disabled:opacity-50">
               <GoogleIcon />
               Continue with Google
             </button>

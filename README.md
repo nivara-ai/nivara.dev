@@ -1,68 +1,109 @@
+<div align="center">
+
 # Nivara Product Hub
 
-Nivara Product Hub is the internal catalog for Nivara AI solutions, built with Next.js + Supabase and protected by role-based access control.
+[![CI](https://github.com/nivara-ai/nivara.dev/actions/workflows/ci.yml/badge.svg)](https://github.com/nivara-ai/nivara.dev/actions/workflows/ci.yml)
+[![Deploy](https://img.shields.io/badge/deploy-Vercel-black?logo=vercel)](https://nivara.dev)
+[![License](https://img.shields.io/badge/license-Proprietary-red)]()
 
-Live site: [https://nivara.dev](https://nivara.dev)
+**The centralized catalog for Nivara's AI proof-of-concepts.**
 
-## What It Does
+[Live Site](https://nivara.dev) · [Wiki](https://github.com/nivara-ai/nivara.dev/wiki) · [Releases](https://github.com/nivara-ai/nivara.dev/releases)
 
-- Authenticated access with Supabase Auth
-- Approval-gated onboarding (`approved` users only)
-- Product catalog dashboard with search and sector filters
-- Product detail pages with role-based visibility
-- External users restricted to explicitly granted products
-- Admin navigation ready for Users and Invites management
+</div>
 
-## Roles and Access
+---
 
-Supported roles:
+## Overview
 
-- `admin`
-- `team_tech`
-- `team_business`
-- `external`
+Nivara Product Hub (`nivara.dev`) is the internal platform where the Nivara team showcases, manages, and shares its portfolio of AI solutions. It replaces the previous `playground.nivara.io` showroom with a secure, role-gated experience that supports four distinct user personas — from CEO-level full visibility down to external stakeholders who can only access specific demos.
 
-Access behavior:
+## Key Features
 
-- `admin`, `team_tech`, `team_business` can see all products in the dashboard
-- `external` can see only products granted in `product_access`
-- Architecture and repository links are visible only to technical/admin roles
-- Pitch content is visible to admin/business roles
+- **Role-Based Access Control** — four roles (`admin`, `team_tech`, `team_business`, `external`) with granular visibility rules
+- **Product Catalog** — searchable grid with sector filters, tech-stack tags, version badges, and status indicators
+- **Product Detail Pages** — role-aware content: technical users see repo links and architecture; business users see pitch and factsheet; external users see demo access only
+- **Approval Workflow** — new sign-ups land in a "Pending Approval" state until an admin promotes them
+- **Invite System** *(Phase 3 — planned)* — token-based invite links scoped to specific products
+- **Admin Panel** *(Phase 4 — planned)* — user management, product CRUD, invite dashboard
+- **AI Chat per Product** *(Phase 5 — planned)* — conversational assistant with product-specific system prompts
 
 ## Tech Stack
 
-- Next.js 15 (App Router)
-- TypeScript 5.7
-- React 19
-- Tailwind CSS v4
-- Supabase Auth + PostgreSQL
-- Lucide React
-- Vercel deployment
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 15 (App Router, Server Components, Server Actions) |
+| Language | TypeScript 5.7 |
+| UI | React 19, Tailwind CSS v4 |
+| Auth & DB | Supabase Auth + PostgreSQL with Row Level Security |
+| Icons | Lucide React |
+| Hosting | Vercel (auto-deploy from `main`) |
+| DNS | Cloudflare |
+| CI | GitHub Actions (type-check + build) |
 
-## Data Model (Core Tables)
+## Project Structure
 
-- `user_profiles`
-- `products`
-- `product_access`
-- `invite_links`
+```
+src/
+├── app/
+│   ├── auth/              # Auth callback + server actions
+│   ├── create-account/    # Registration page
+│   ├── reset-password/    # Password recovery
+│   ├── dashboard/         # Protected dashboard layout + pages
+│   │   └── products/[slug]/ # Product detail page
+│   ├── layout.tsx         # Root layout
+│   └── page.tsx           # Sign-in (home)
+├── components/
+│   ├── ui/                # Sign-in, shared UI primitives
+│   └── dashboard/         # Sidebar, header, product grid, product detail
+├── lib/
+│   ├── data.ts            # Server-side data fetching
+│   ├── roles.ts           # Role permission helpers
+│   └── types.ts           # TypeScript interfaces
+├── utils/supabase/        # Supabase client (server, client, middleware)
+└── middleware.ts           # Auth session refresh middleware
+```
 
-The `products` table is seeded with:
+## Data Model
 
-- `lobby-ai`
-- `nina`
-- `bally`
-- `tender-ai`
-- `artimino`
-- `fiee`
-- `nivara-os`
-- `nivara-hr`
+Four core tables in the `public` schema, all protected by RLS policies:
+
+- **`user_profiles`** — extends `auth.users` with `role`, `approved`, `organization`, `full_name`
+- **`products`** — 21+ columns including slug, name, tagline, description, sector, tech_stack (JSONB), features (JSONB), repo_url, demo_url, pitch_content, factsheet_content, ai_system_prompt
+- **`product_access`** — junction table mapping users to products with access levels (`view`, `demo`, `full`)
+- **`invite_links`** — token-based invitations scoped to products, roles, and expiration
+
+### Seeded Products
+
+| Slug | Name | Sector |
+|------|------|--------|
+| `lobby-ai` | LobbyAI | Legal Tech |
+| `nina` | Nina® | AI Planning |
+| `bally` | OTB Intelligence Platform | Luxury Retail |
+| `tender-ai` | Tender AI | Healthcare / Medical Devices |
+| `artimino` | Artimino Futura | Agriculture / Wine Production |
+| `fiee` | FIEE | FinTech / Private Equity |
+| `nivara-os` | Nivara OS | AI Governance & Compliance |
+| `nivara-hr` | Nina HR Intelligence | HR Tech |
+
+## Roles and Access
+
+| Capability | admin | team_tech | team_business | external |
+|------------|:-----:|:---------:|:-------------:|:--------:|
+| See all products | ✅ | ✅ | ✅ | ❌ |
+| See granted products only | — | — | — | ✅ |
+| View repo links | ✅ | ✅ | ❌ | ❌ |
+| View architecture | ✅ | ✅ | ❌ | ❌ |
+| View pitch/factsheet | ✅ | ❌ | ✅ | ❌ |
+| Admin panel (Users/Invites) | ✅ | ❌ | ❌ | ❌ |
+| Manage products | ✅ | ❌ | ❌ | ❌ |
 
 ## Local Development
 
 ### Prerequisites
 
 - Node.js 20+
-- Supabase project with required schema
+- A Supabase project with the required schema (see Wiki for migration SQL)
 
 ### Environment Variables
 
@@ -81,17 +122,29 @@ npm install
 npm run dev
 ```
 
-Then open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000).
 
 ## CI/CD
 
-- CI: GitHub Actions workflow at `.github/workflows/ci.yml` (type-check + production build)
-- CD: production deploys on Vercel from `main`
+| Pipeline | Trigger | Steps |
+|----------|---------|-------|
+| **CI** (GitHub Actions) | Push to `main`, PRs | `tsc --noEmit` → `npm run build` |
+| **CD** (Vercel) | Push to `main` | Auto-deploy to production |
+
+The CI workflow lives at `.github/workflows/ci.yml`.
+
+## Roadmap
+
+- [x] **Phase 1** — Database schema, RLS policies, seed data (8 products)
+- [x] **Phase 2** — Frontend dashboard with role-based access, product grid, detail pages
+- [ ] **Phase 3** — Invite system and external user access
+- [ ] **Phase 4** — Admin panel (user management, product CRUD, invite management)
+- [ ] **Phase 5** — AI chat per product, factsheet PDF export, pitch view
 
 ## Security
 
-Please read [Security Policy](.github/SECURITY.md) for vulnerability reporting and response process.
+See [SECURITY.md](.github/SECURITY.md) for vulnerability reporting and response process.
 
 ## License
 
-Proprietary - (c) Nivara AI. All rights reserved.
+Proprietary — © Nivara AI. All rights reserved.

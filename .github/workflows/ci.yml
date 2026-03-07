@@ -2,38 +2,37 @@ name: CI
 
 on:
   push:
-      branches: [main]
-        pull_request:
-            branches: [main]
+    branches: [main]
+  pull_request:
+    branches: [main]
 
-            permissions:
-              contents: read
+permissions:
+  contents: read
 
-              env:
-                NEXT_PUBLIC_SUPABASE_URL: https://ukaeanrwxsdqpxpiuigg.supabase.co
-                  NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-for-ci-build
-                    NEXT_PUBLIC_SITE_URL: https://nivara.dev
+env:
+  NEXT_PUBLIC_SUPABASE_URL: https://ukaeanrwxsdqpxpiuigg.supabase.co
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-for-ci-build
+  NEXT_PUBLIC_SITE_URL: https://nivara.dev
 
-                    jobs:
-                      build:
-                          name: Build & Type Check
-                              runs-on: ubuntu-latest
+jobs:
+  build:
+    name: Build & Type Check
+    runs-on: ubuntu-latest
 
-                                  steps:
-                                        - name: Checkout
-                                                uses: actions/checkout@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-                                                      - name: Setup Node.js
-                                                              uses: actions/setup-node@v4
-                                                                      with:
-                                                                                node-version: 20
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-                                                                                      - name: Install dependencies
-                                                                                              run: npm install
+      - name: Install dependencies
+        run: npm install
 
-                                                                                                    - name: Type check
-                                                                                                            run: npx tsc --noEmit
-                                                                                                            
-                                                                                                                  - name: Build
-                                                                                                                          run: npm run build
-                                                                                                                          
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build

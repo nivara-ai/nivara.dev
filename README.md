@@ -136,10 +136,10 @@ The CI workflow lives at `.github/workflows/ci.yml`.
 ## Roadmap
 
 - [x] **Phase 1** — Database schema, RLS policies, seed data (8 products)
-- [x] **Phase 2** — Frontend dashboard with role-based access, product grid, detail pages
-- [ ] **Phase 3** — Invite system and external user access
-- [ ] **Phase 4** — Admin panel (user management, product CRUD, invite management)
-- [ ] **Phase 5** — AI chat per product, factsheet PDF export, pitch view
+- [x] **Phase 2** — Frontend dashboard with role-based access, product grid, detail pages *(core complete — detail page parity with playground tracked in [#1](https://github.com/nivara-ai/nivara.dev/issues/1), catalog refinements in [#7](https://github.com/nivara-ai/nivara.dev/issues/7))*
+- [ ] **Phase 3** — Invite system and external user access ([#3](https://github.com/nivara-ai/nivara.dev/issues/3))
+- [ ] **Phase 4** — Admin panel: user management ([#2](https://github.com/nivara-ai/nivara.dev/issues/2)), settings ([#4](https://github.com/nivara-ai/nivara.dev/issues/4)), RBAC ([#5](https://github.com/nivara-ai/nivara.dev/issues/5))
+- [ ] **Phase 5** — AI chat per product ([#6](https://github.com/nivara-ai/nivara.dev/issues/6)), factsheet PDF export, pitch view
 
 ## Security
 
